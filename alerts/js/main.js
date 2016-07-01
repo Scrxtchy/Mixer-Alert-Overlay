@@ -1,20 +1,19 @@
 // Streamjar user API key
-// Get this from your streamjar account.
-var sjKey = '';
+var sjKey = 'Streamjar Key Here'; // https://streamjar.tv/account
+userID = 00000; // Your beam.pro user id. Look it up at http://www.firebottle.tv/beam-lookup/
 
 // Global Settings
 messageDelay = 10000; // How long to show donation messages.
-followDelay = 5000; // How long to show follow alert.
+followDelay = 7000; // How long to show follow alert.
 eventsToShow = 3; // Number of events to show in the event list.
 timer = 6000; // How long to show each timed message.
 numMessages = 3; // Number of timed messages.
 timeBetweenMessages = 900000; // How often do you want to trigger the timed messages. 900000 = 15 minutes
-friends = ["DrackmelKress", "Lagby", "Rocketbear", "Ocravn", "WolfStar76", "DreadGazeebo", "Nosferatu1208", "BigHossenfeffer", "Mushious", "Xvaliance", "Favorlock", "Phantomlover", "Queen_Liz", "BasicallyToast", "JDubb", "Telroa", "ThePixelQuest", "DreadPixie"]; // List of friends you want to support.
 
 // Connect to Streamjar Websocket
 var sock = io('https://ws.streamjar.tv/overlay', { query: 'key='+sjKey });
 sock.on('connect', function() {
-	console.log('Connected to Streamjar.');
+	console.log('Connected.');
 	connectedPopup();
 });
 sock.on('error', function(){
@@ -27,11 +26,18 @@ sock.on('disconnect', function(){
 });
 
 // Event Queue
-// This is where all events are stored until the program gets around to displaying the alerts.
 followQueue = [];
 tipQueue = [];
 subQueue = [];
 gamewispQueue = [];
+hostQueue = [];
+tweetQueue = [];
+
+// Host Event
+sock.on('host',function(data){
+	console.log(data.name + ' just hosted the stream.');
+	hostQueue.push(data);
+});
 
 // Donation Event
 sock.on('donation', function(data) {
@@ -51,6 +57,12 @@ sock.on('subscribe', function(data) {
 	subQueue.push(data);
 });
 
+// ReSubscribe Event
+sock.on('resubscribe', function(data) {
+	console.log(data.name + ' just subscribed to the stream.');
+	subQueue.push(data);
+});
+
 // Gamewisp Subscribe Event
 sock.on('gamewisp-subscribe', function(data) {
 	console.log(data.username + ' just subscribed to the stream through gamewisp.');
@@ -61,6 +73,12 @@ sock.on('gamewisp-subscribe', function(data) {
 sock.on('gamewisp-resubscribe', function(data) {
 	console.log(data.username + ' just re-subscribed to the stream through gamewisp.');
 	gamewispQueue.push(data);
+});
+
+// Gamewisp Re-Subscribe Event
+sock.on('tweet', function(data) {
+	console.log(data.name + ' tweeted out the stream.');
+	tweetQueue.push(data);
 });
 
 // Queue Checker
@@ -81,6 +99,14 @@ function queueChecker(){
 	} else if (followQueue.length){
 		followerAlert(followQueue[0]);
 		followQueue.splice( $.inArray(followQueue[0],followQueue) ,1 );
+		
+	} else if (hostQueue.length){
+		hostAlert(hostQueue[0]);
+		hostQueue.splice( $.inArray(hostQueue[0],hostQueue) ,1 );
+		
+	} else if (tweetQueue.length){
+		tweetAlert(tweetQueue[0]);
+		tweetQueue.splice( $.inArray(tweetQueue[0],tweetQueue) ,1 );
 	}
 }
 
@@ -129,11 +155,11 @@ function donationAlert(data){
 	var message = data.message;
 	var avatar = data.avatar;
 
-	$('.alert').prepend('<div class="donation"><span class="alert-name">'+username+'</span> - <span class="alert-text">'+convertedAmount+'</span></div>')
+	$('.alert').prepend('<div class="donation animation-target"><span class="alert-name">'+username+'</span> <span class="alert-text">'+convertedAmount+'</span></div>')
 
 	
 	$('.donation-message').animate({
-		'bottom':'300px'
+		'bottom':'50px'
 	}, 500);
 
 	$('.donation-message span').empty().text(username+' says, \"'+message+'\"');
@@ -142,7 +168,7 @@ function donationAlert(data){
 	// Hide the slider at end of animation.
 	setTimeout(function(){
 		$('.donation-message').animate({
-			'bottom':'-300px'
+			'bottom':'-550px'
 		}, 500);
 	}, messageDelay);
 	
@@ -155,10 +181,10 @@ function followerAlert(data){
 	var username = data.name;
 	var avatar = data.avatar;
 
-	$('.alert').prepend('<div class="follow animation-target"><span class="alert-name">'+username+'</span> - <span class="alert-text">FOLLOW</span></div>');
+	$('.alert').prepend('<div class="follow animation-target"><span class="alert-name">'+username+'</span> <span class="alert-text">FOLLOW</span></div>');
 
 	$('.alert-message').animate({
-		'bottom':'400px'
+		'bottom':'50px'
 	}, 500);
 
 	$('.alert-message span').empty().text(username+' followed!');
@@ -166,7 +192,7 @@ function followerAlert(data){
 	// Hide the slider at end of animation.
 	setTimeout(function(){
 		$('.alert-message').animate({
-			'bottom':'-400px'
+			'bottom':'-550px'
 		}, 500);
 	}, followDelay);	
 	
@@ -179,18 +205,30 @@ function followerAlert(data){
 function subscriberAlert(data){
 	var username = data.name;
 	var avatar = data.avatar;
+	var subtime = data.value;
 
-	$('.alert').prepend('<div class="subscriber"><span class="alert-name">'+username+'</span> - <span class="alert-text">SUB</span></div>');
-	$('.alert-message').animate({
-		'bottom':'400px'
-	}, 500);
+	if (subtime > 1){
+		// Resub
+		$('.alert').prepend('<div class="subscriber animation-target"><span class="alert-name">'+username+'</span> <span class="alert-text">SUB x'+subtime+'</span></div>');
+		$('.alert-message').animate({
+			'bottom':'50px'
+		}, 500);
 
-	$('.alert-message span').empty().text(username+' subscribed!');
+		$('.alert-message span').empty().text(username+' resubscribed ('+subtime+' months). ');
+	} else {
+		// New Sub
+		$('.alert').prepend('<div class="subscriber animation-target"><span class="alert-name">'+username+'</span> <span class="alert-text">SUB</span></div>');
+		$('.alert-message').animate({
+			'bottom':'50px'
+		}, 500);
+
+		$('.alert-message span').empty().text(username+' subscribed!');
+	}
 	
 	// Hide the slider at end of animation.
 	setTimeout(function(){
 		$('.alert-message').animate({
-			'bottom':'-400px'
+			'bottom':'-550px'
 		}, 500);
 	}, messageDelay);	
 	
@@ -208,9 +246,9 @@ function gamewispSubscribe(data){
 	var avatar = data.avatar;
 	// If they've been subscribed for more than a month...
 	if (duration > 1){
-		$('.alert').prepend('<div class="gw-subscriber"><span class="alert-name">'+username+'</span> - <span class="alert-text">SUB x'+duration+' ('+tierName+')</span></div>');
+		$('.alert').prepend('<div class="gw-subscriber animation-target"><span class="alert-name">'+username+'</span> <span class="alert-text">SUB x'+duration+' ('+tierName+')</span></div>');
 		$('.alert-message').animate({
-			'bottom':'400px'
+			'bottom':'50px'
 		}, 500);
 
 		$('.alert-message span').empty().text(username+' re-subbed via Gamewisp for '+duration+' months!');
@@ -219,13 +257,13 @@ function gamewispSubscribe(data){
 		// Hide the slider at end of animation.
 		setTimeout(function(){
 			$('.alert-message').animate({
-				'bottom':'-400px'
+				'bottom':'-550px'
 			}, 500);
 		}, messageDelay);	
 	}else{
-		$('.alert').prepend('<div class="gw-subscriber"><span class="alert-name">'+username+'</span> - <span class="alert-text">SUB ('+tierName+')</span></div>');
+		$('.alert').prepend('<div class="gw-subscriber animation-target"><span class="alert-name">'+username+'</span> <span class="alert-text">SUB ('+tierName+')</span></div>');
 		$('.alert-message').animate({
-			'bottom':'400px'
+			'bottom':'50px'
 		}, 500);
 
 		$('.alert-message span').empty().text(username+' subbed via Gamewisp!');
@@ -234,7 +272,7 @@ function gamewispSubscribe(data){
 		// Hide the slider at end of animation.
 		setTimeout(function(){
 			$('.alert-message').animate({
-				'bottom':'-400px'
+				'bottom':'-550px'
 			}, 500);
 		}, messageDelay);	
 	}
@@ -243,14 +281,36 @@ function gamewispSubscribe(data){
 	trimList();
 }
 
+// Host Alert
+function hostAlert(data){
+	var username = data.name;
+	var viewers = data.value;
+
+	$('.alert').prepend('<div class="host animation-target"><span class="alert-name">'+username+'</span> <span class="alert-text">HOST('+viewers+')</span></div>');
+	
+	playSound('host');
+	animate();
+	trimList();
+}
+
+// Tweet Alert
+function tweetAlert(data){
+	var username = data.name;
+
+	$('.alert').prepend('<div class="tweet animation-target"><span class="alert-name">'+username+'</span> <span class="alert-text">Tweet</span></div>');
+	
+	playSound('tweet');
+	animate();
+	trimList();
+}
+
 // Timed Messages
 function timedMessages(timer){
+	// People you want to support
 	// Calculate time to complete animation and pick a random friend
 	var completeTimer = timer*numMessages;
-	var friendpick = friends[Math.floor(Math.random()*friends.length)];
 
 	// Show the messages
-	$('.friend').text(friendpick);
 	$('.timed-messages').slick('slickGoTo', 0);
 	$('.timed-messages').animate({
 		'top':'10px'
@@ -291,43 +351,34 @@ function animate(){
 
 // Play Sound
 function playSound(soundType){
-	var followerSounds = ['darkest_follow_01','darkest_follow_02','darkest_follow_03','darkest_follow_04','darkest_follow_05','darkest_follow_06','darkest_follow_07','darkest_follow_08','darkest_follow_09','darkest_follow_10','darkest_follow_11'];
-	var resubscribeSounds = ['darkest_resub_01','darkest_resub_02','darkest_resub_03','darkest_resub_04'];
-	var subscribeSounds = ['darkest_subscriber_01','darkest_subscriber_02','darkest_subscriber_03'];
-	var tipSounds = ['darkest_tip_01','darkest_tip_01','darkest_tip_01','darkest_tip_01','darkest_tip_01','darkest_tip_bonus_A','darkest_tip_bonus_B'];
+	var followerSounds = ['follow'];
+	var resubscribeSounds = ['resub'];
+	var subscribeSounds = ['sub'];
+	var tipSounds = ['tip'];
+	var tweetSounds = ['tweet'];
+	var hostSounds = ['host'];
 	
 	if(soundType == "follower"){
-		var chosenOne = followerSounds[Math.floor(Math.random()*followerSounds.length)];
-		$('.audio-wrap').empty();
-		var audioElement = document.createElement('audio');
-        audioElement.setAttribute('src', './sound/'+chosenOne+'.mp3');
-        audioElement.setAttribute('autoplay', 'autoplay');
-		audioElement.load();
+		$('.follower-sound').trigger("play");
 		
 	} else if (soundType == "resub"){
-		var chosenOne = resubscribeSounds[Math.floor(Math.random()*resubscribeSounds.length)];
-		$('.audio-wrap').empty();
-		var audioElement = document.createElement('audio');
-        audioElement.setAttribute('src', './sound/'+chosenOne+'.mp3');
-        audioElement.setAttribute('autoplay', 'autoplay');
-		audioElement.load();
+		$('.resubscriber-sound').trigger("play");
 		
 	} else if (soundType == "sub"){
-		var chosenOne = subscribeSounds[Math.floor(Math.random()*subscribeSounds.length)];
-		$('.audio-wrap').empty();
-		var audioElement = document.createElement('audio');
-        audioElement.setAttribute('src', './sound/'+chosenOne+'.mp3');
-        audioElement.setAttribute('autoplay', 'autoplay');
-		audioElement.load();
+		$('.subscriber-sound').trigger("play");
 		
 	} else if (soundType == "tip"){
-		var chosenOne = tipSounds[Math.floor(Math.random()*tipSounds.length)];
-		$('.audio-wrap').empty();
-		var audioElement = document.createElement('audio');
-        audioElement.setAttribute('src', './sound/'+chosenOne+'.mp3');
-        audioElement.setAttribute('autoplay', 'autoplay');
-		audioElement.load();
+		$('.tip-sound').trigger("play");
+		
+	} else if (soundType == "tweet"){
+		$('.tweet-sound').trigger("play");
+		
+	} else if (soundType == "host"){
+		$('.host-sound').trigger("play");
 	}
+	
+	// Sound Debug
+	// console.log('Playing '+chosenOne);
 	
 }
 
@@ -338,7 +389,7 @@ function playSound(soundType){
 /////////////////
 
 $( document ).ready(function() {
-	// Start up the slider
+	// Start up the slider (30 minutes is 1800000)
 	$('.timed-messages').slick({
 		arrows: false,
 		autoplay: true,

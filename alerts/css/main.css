@@ -1,6 +1,6 @@
 @font-face {
-    font-family: OptimusPrinceps, Times New Roman, Verdana;
-    src: url(../fonts/OptimusPrinceps.ttf);
+    font-family: ProximaNovaBold;
+    src: url(../fonts/ProximaNovaBold.otf) format("opentype");
 }
 html, body{
 	background-color:transparent;
@@ -13,7 +13,7 @@ html, body{
 	position:relative;
 	width:1920px;
 	height:1080px;
-	font-family: OptimusPrinceps, Times New Roman, Verdana;
+	font-family: ProximaNovaBold, Verdana;
 	font-size:18pt;
 	overflow:hidden;
 	color:white;
@@ -40,11 +40,11 @@ html, body{
 .alert div{
 	display:none;
 	text-align:right;
-	padding: 0px 5px 0px 5px;
+	margin: 3px 3px 3px 3px;
 	text-overflow: ellipsis;
 	float:right;
 	clear:both;
-	border-radius:5px;
+	color:#00213d;
 }
 .alert .alert-name{
 	max-width:240px;
@@ -52,81 +52,67 @@ html, body{
 	text-overflow:ellipsis;
 	display:inline-block;
 	vertical-align: top;
+	background-color: #ffcb05;
+	padding:2px 5px;
+	border-radius:5px 0px 0px 5px;
 }
 .alert .alert-text{
 	display:inline-block;
 	vertical-align: top;
+	background-color: #ffcb05;
+	padding:2px 5px;
+	border-radius:0px 5px 5px 0px;
 }
 .donation-message{
-	background-image:url('../images/alert.png');
-	background-repeat:no-repeat;
-	color:#c2b6ac;
+	background-color:#ffcb05;
+	color:#00213d;
 	font-size:1em;
-	width:870px;
-	height:138px;
-	padding:40px 10px;
+	padding:10px;
 	text-align:center;
 	position:absolute;
-	bottom:-300px;
+	bottom:-550px;
 	left: 50%;
 	-webkit-transform: translateX(-50%);
 	transform: translateX(-50%);
 	border-radius: 5px;
 }
-.donation-message span{
-	padding: 0px 70px 0px 70px;
-	display:block;
-}
 .alert-message{
-	background-image:url('../images/alert.png');
-	background-repeat:no-repeat;
-	color:#c2b6ac;
+	background-color:#ffcb05;
+	color:#00213d;
 	font-size:1.25em;
-	width:870px;
-	height:138px;
-	padding:40px 10px;
+	padding:10px;
 	text-align:center;
 	position:absolute;
-	bottom:-400px;
+	bottom:-550px;
 	left: 50%;
 	-webkit-transform: translateX(-50%);
 	transform: translateX(-50%);
 	border-radius: 5px;	
 }
-.alert-message span{
-	position:relative;
-	top:12px;
-	padding: 0px 70px 0px 70px;
-	display:block;
-}
 .alert div:nth-child(1){
-	background-color:#000000;
 	font-size:1em;
 	opacity: .9;
 }
 .alert div:nth-child(2){
 	font-size:.9em;
 	opacity: .8;
-	color:white;
 }
 .alert div:nth-child(3){
 	font-size:.8em;
 	opacity: .7;
-	color:white;
 }
 .alert div:nth-child(4){
 	font-size: .7em;
 	opacity: .6;
-	color:white;
 }
 .alert div:nth-child(5){
 	font-size: .6em;
 	opacity: .5;
-	color:white;
 }
 
 .timed-messages{
-	background-color:#000000;
+	background-color:#ffcb05;
+	color: #00213d;
 	font-size: 1em;
 	padding: 10px;
 	width:850px;
@@ -138,12 +124,9 @@ html, body{
 	border-radius:5px;
 }
 
-
-
-
 .animation-target {
-  -webkit-animation: animation 1000ms linear both;
-  animation: animation 1000ms linear both;
+  -webkit-animation: animation 3000ms linear both;
+  animation: animation 3000ms linear both;
 }
 
 /* Generated with Bounce.js. Edit at http://goo.gl/bkOekC */
@@ -191,10 +174,3 @@ html, body{
   82.78% { -webkit-transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
   100% { -webkit-transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); } 
 }
-
-
-
-
-
-
-
