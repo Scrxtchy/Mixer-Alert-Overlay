@@ -1,0 +1,74 @@
+html, body{
+	background-color: transparent;
+	margin: 0px;
+	padding: 0px;
+	width: 1920px;
+	height: 1080px;
+}
+
+#avatar{
+	position: absolute;
+	left: 20px;
+	top: 98px;
+	width: 200px;
+	height: 200px;
+	animation: hexagonAnimation;
+	animation-duration: 4s;
+	animation-iteration-count: infinite;
+}
+
+#text{
+	position: absolute;
+	transform: rotateZ(27deg);
+	transform-origin: 0% 50%;
+	top: 220px;
+	left: 200px;
+	font-size: 3em;
+	font-family: 'Microsoft YaHei';
+	font-weight: bold;
+	color: #fff;
+	-webkit-text-stroke: 0.5pt black;
+	text-shadow: 1pt 0 0 #000, 0 -1pt 0 #000, 0 1pt 0 #000, -1pt 0 0 #000;
+	float: right;
+	animation: textAnimation;
+	animation-duration: 4s;
+	animation-iteration-count: infinite;
+	overflow:hidden;
+	clear:both;
+	white-space: nowrap;
+}
+
+.hexagon{
+	-webkit-clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+	clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+	-webkit-clip-path: url("#polygon-clip-hexagon");
+    clip-path: url("#polygon-clip-hexagon");
+     @-moz-document url-prefix() { 
+    clip-path: url(#polygon-clip-hexagon);
+  }  
+}
+
+@keyframes hexagonAnimation {
+	0% {
+		transform: rotateZ(-720deg) scale(0,0);
+	}
+	15% {
+		transform: rotateZ(0deg) scale(1,1)
+	}
+	85% {
+		transform: rotateZ(0deg) scale(1,1);
+	}
+	100% {
+		transform: rotateZ(-720deg) scale(0,0);
+	}
+}
+
+@keyframes textAnimation {
+	0%{ width: 0px; }
+	15% {width: 0px; }
+	35% {width: 500px;}
+	75% {width: 500px;}
+	85% {width: 0px;}
+	100% {width: 0px;}
+	}
+}
